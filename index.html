@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Advanced Media Player with Recording</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+  <div class="container" id="name">
+    <h1><i class="fas fa-music"></i> Advanced Media Player</h1>
+    
+    <div class="source-selector">
+      <div class="source-option selected" id="fileOption">
+        <i class="fas fa-file-upload"></i>
+        <span>Upload File</span>
+      </div>
+      <div class="source-option" id="urlOption">
+        <i class="fas fa-link"></i>
+        <span>Enter URL</span>
+      </div>
+      <div class="source-option" id="recordOption">
+        <i class="fas fa-microphone"></i>
+        <span>Record</span>
+      </div>
+    </div>
+    
+    <div class="input-container" id="fileInputContainer">
+      <label for="fileInput"><i class="fas fa-file-audio"></i> Select Media File</label>
+      <input type="file" accept="audio/*,video/*" id="fileInput"/>
+    </div>
+    
+    <div class="input-container" id="urlInputContainer" style="display: none;">
+      <label for="urlInput"><i class="fas fa-link"></i> Media URL</label>
+      <input type="url" id="urlInput" placeholder="https://example.com/media.mp3" />
+      <button class="load-btn" id="loadUrlBtn">Load Media</button>
+    </div>
+    
+    <div class="input-container" id="recordContainer" style="display: none;">
+      <label for="recordFolder"><i class="fas fa-folder"></i> Select Save Folder</label>
+      <input type="text" id="recordFolder" placeholder="Recordings (browser storage)" readonly />
+      <button class="load-btn" id="changeFolderBtn">Change Folder</button>
+      
+      <div class="recording-controls">
+        <button id="recordBtn">
+          <i class="fas fa-circle"></i> Start Recording
+        </button>
+        <div id="recordingStatus">Ready to record</div>
+      </div>
+      
+      <div class="recordings-list" id="recordingsList">
+        <h3>Saved Recordings</h3>
+        <div id="recordingsContainer"></div>
+      </div>
+    </div>
+    
+    <div class="status-panel">
+      <div class="status-card">
+        <h3><i class="fas fa-vibration"></i> VIBRATION STATUS</h3>
+        <div id="vibrationStatus" class="status-value vibration">Checking...</div>
+      </div>
+      <div class="status-card">
+        <h3><i class="fas fa-volume-up"></i> VOLUME LEVEL</h3>
+        <div id="volumeLevel" class="status-value volume">Idle</div>
+      </div>
+      <div class="status-card">
+        <h3><i class="fas fa-sync-alt"></i> LOOP MODE</h3>
+        <div id="loopStatus" class="status-value">Off</div>
+      </div>
+    </div>
+
+    <div id="controls">
+      <div class="btn-group">
+        <button id="playBtn">
+          <i class="fas fa-play"></i> Play
+        </button>
+        <button id="loopBtn">
+          <i class="fas fa-sync"></i> Loop: Off
+        </button>
+      </div>
+      
+      <div class="skip-container">
+        <button id="skipBackBtn">«</button>
+        <button id="skipForwardBtn">»</button> 
+      </div>
+      <canvas id="stickCanvas" width="0" height="0" style="border:1px solid #333;"></canvas>
+      <div id="vol">
+        <p id="volu">all avg: 0.00000 <br> main avg: 0.00000000000</p>
+      </div>
+      <div id="sp1" style="width:20px;background:cyan;display:inline-block;margin:2px; height: 10px;"></div>
+<div id="sp2" style="width:20px;background:cyan;display:inline-block;margin:2px;height: 10px;"></div>
+<div id="sp3" style="width:20px;background:cyan;display:inline-block;margin:2px;height: 10px;"></div>
+<div id="sp4" style="width:20px;background:cyan;display:inline-block;margin:2px;height: 10px;"></div>
+      <div class="seek-container">
+        <input type="range" id="seek" min="0" max="100" value="0" />
+        <div class="time-display-container">
+          <input type="text" id="timeDisplay" value="00:00:00:000" readonly />
+          <div class="duration">/ 00:00:00:000</div>
+        </div>
+      </div>
+      
+      <div class="volume-indicator">
+        <div class="volume-level" id="volLow"></div>
+        <div class="volume-level" id="volMed"></div>
+        <div class="volume-level" id="volHigh"></div>
+      </div>
+    </div>
+    
+    <canvas id="visualizer" width="600" height="150"></canvas>
+    
+    <video id="videoElement" controls playsinline style="display: none;"></video>
+    <audio id="audioElement" style="display: none;"></audio>
+    
+    <div class="instructions">
+      <h3><i class="fas fa-info-circle"></i> Player Features</h3>
+      <div class="features">
+        <div class="feature">
+          <h4><i class="fas fa-vibration"></i> Haptic Feedback</h4>
+          <p>Medium volume: 300ms vibration + white flash</p>
+          <p>High volume: 200ms vibration + green flash</p>
+        </div>
+        <div class="feature">
+          <h4><i class="fas fa-paint-brush"></i> Visual Effects</h4>
+          <p>Background flashes during vibration</p>
+          <p>Volume level indicators</p>
+        </div>
+        <div class="feature">
+          <h4><i class="fas fa-play-circle"></i> Media Sources</h4>
+          <p>Upload local files</p>
+          <p>Play from URL</p>
+          <p>Record audio</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="main.js"></script>
+</body>
+</html>

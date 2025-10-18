@@ -568,9 +568,9 @@ function drawVisualizer(timestamp) {
         sum += combinedData[i];
         if (i < 8) sumFirst += combinedData[i];
 
-        const r = barHeight + 25;
-        const g = 250 - barHeight;
-        const b = barHeight + 100;
+        const r = barHeight;
+        const g = 255 - barHeight;
+        const b = barHeight*10;
         ctx.fillStyle = `rgb(${r},${g},${b},1)`;
         ctx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
         x += barWidth + 1;
@@ -594,6 +594,16 @@ function drawVisualizer(timestamp) {
     shake(0.5, 100);
     volu.style.color = "yellow";
     document.body.style.background = "yellow";
+  } else if (avg2 < 211) {
+    vol.style.boxShadow = "0 0 10px rgba(255, 255, 0, 0.58)";
+    shake(0.6, 100);
+    volu.style.color = "white";
+    document.body.style.background = "white";
+  } else if (avg2 < 231) {
+    vol.style.boxShadow = "0 0 10px rgba(255, 255, 0, 0.58)";
+    shake(0.8, 100);
+    volu.style.color = "red";
+    document.body.style.background = "red";
   } else if (avg2 < 250) {
     vol.style.boxShadow = "0 0 10px rgba(255, 0, 0, 0.58)";
     shake(1, 50);
@@ -832,7 +842,7 @@ function initAudioContext() {
         document.body.classList.remove("flash-white", "flash-green", "shake");
       }
     }
-
+  
     // Skip backward
     function skipBackward() {
       if (!mediaElement) return;
@@ -1179,166 +1189,172 @@ function drawStickmanAI(avg, peakHz) {
     console.error('emotional damage: unkown error says "Initialization error:', e+'"');
   }
 });
-document.addEventListener('DOMContentLoaded', () => {try {
-  // --- Settings defaults ---
-  const defaultSettings = {
-    maxFPS60: false,
-    reduceShake: false,
-    reduceColor: false,
-    showURLOption: true,
-    showInstructions: true
-  };
-
-  // Load settings from localStorage or use defaults
-  const savedSettings = JSON.parse(localStorage.getItem('playerSettings')) || {};
-  const settings = { ...defaultSettings, ...savedSettings };
-
-  // --- Create settings button ---
-  const settingsBtn = document.createElement('div');
-  settingsBtn.style.position = 'fixed';
-  settingsBtn.id = "sett";
-
-  settingsBtn.style.top = '10px';
-  settingsBtn.style.left = '10px';
-  settingsBtn.style.width = '30px';
-  settingsBtn.style.height = '30px';
-  settingsBtn.style.borderRadius = '50%';
-// Try to use sett.png
-const img = new Image();
-img.src = 'sett.png';
-img.onload = () => {
-  settingsBtn.style.backgroundImage = `url(${img.src})`;
-  settingsBtn.style.backgroundSize = 'cover';
-  settingsBtn.style.backgroundPosition = 'center';
-};
-img.onerror = () => {
-  // fallback to black if image doesn't exist
-  settingsBtn.style.backgroundColor = 'black';
-};
-
-document.body.appendChild(settingsBtn);
-  settingsBtn.style.cursor = 'pointer';
-  settingsBtn.style.zIndex = 9999;
-  settingsBtn.title = 'Open Settings';
-  document.body.appendChild(settingsBtn);
-
-  // --- Settings panel ---
-  const panel = document.createElement('div');
-  panel.style.position = 'fixed';
-  panel.style.top = '50px';
-  panel.style.left = '10px';
-  panel.style.width = '220px';
-  panel.style.padding = '10px';
-  panel.style.backgroundColor = 'rgba(0,0,0,0.85)';
-  panel.style.color = 'white';
-  panel.style.fontSize = '14px';
-  panel.style.borderRadius = '8px';
-  panel.style.display = 'none';
-  panel.style.zIndex = 9999;
-  panel.style.maxHeight = '90vh';
-  panel.style.overflowY = 'auto';
-  panel.innerHTML = `<h4 style="margin:5px 0;">Settings</h4>`;
-  document.body.appendChild(panel);
-
-  // --- Helper to create checkbox ---
-  function createCheckbox(name, label, checked) {
-    const wrapper = document.createElement('div');
-    wrapper.style.margin = '5px 0';
-    const input = document.createElement('input');
-    input.type = 'checkbox';
-    input.id = `chk-${name}`;
-    input.checked = checked;
-    const lbl = document.createElement('label');
-    lbl.htmlFor = input.id;
-    lbl.textContent = ' ' + label;
-    wrapper.appendChild(input);
-    wrapper.appendChild(lbl);
-    panel.appendChild(wrapper);
-    return input;
-  }
-
-  // --- Add checkboxes ---
-  const chkMaxFPS = createCheckbox('maxFPS60', 'Max FPS 60', settings.maxFPS60);
-  const chkShake = createCheckbox('reduceShake', 'Reduce Shake', settings.reduceShake);
-  const chkColor = createCheckbox('reduceColor', 'Reduce Color Party', settings.reduceColor);
-  const chkURL = createCheckbox('showURLOption', 'Show URL Option', settings.showURLOption);
-  const chkInstructions = createCheckbox('showInstructions', 'Show Instructions', settings.showInstructions);
-
-  // --- Reset button ---
-  const resetBtn = document.createElement('button');
-  resetBtn.textContent = 'Reset Settings';
-  resetBtn.style.marginTop = '10px';
-  resetBtn.style.width = '100%';
-  panel.appendChild(resetBtn);
-
-  // --- Event listeners for checkboxes ---
-  [chkMaxFPS, chkShake, chkColor, chkURL, chkInstructions].forEach(chk => {
-    chk.addEventListener('change', () => {
-      settings.maxFPS60 = chkMaxFPS.checked;
-      settings.reduceShake = chkShake.checked;
-      settings.reduceColor = chkColor.checked;
-      settings.showURLOption = chkURL.checked;
-      settings.showInstructions = chkInstructions.checked;
-
-      localStorage.setItem('playerSettings', JSON.stringify(settings));
-
-      // Apply immediate changes
-      window.targetFPS = settings.maxFPS60 ? 60 : 120;
-    });
-  });
-
-  resetBtn.addEventListener('click', () => {
-    localStorage.removeItem('playerSettings');
-    location.reload();
-  });
-  if(panel){
-    panel.id="panel";
-  }
-// --- Toggle panel visibility ---
-settingsBtn.addEventListener('click', function() {
-  const isOpening = !panel.classList.contains('opening');
-  if(isOpening) {
-    // Opening state
-    this.classList.remove('closing');
-    this.classList.add('opening');
-    panel.classList.remove('closing');
-    panel.classList.add('opening');
-    panel.style.display = 'block'; // Ensure panel is visible for transition
-  } else {
-    // Closing state
-    this.classList.remove('opening');
-    this.classList.add('closing');
-    panel.classList.remove('opening');
-    panel.classList.add('closing');
+document.addEventListener('DOMContentLoaded', () => {
+  try {
+    // --- Settings defaults ---
+    const defaultSettings = {
+      maxFPS60: false,
+      reduceShake: false,
+      reduceColor: false,
+      showURLOption: true,
+      showInstructions: true,
+      fullscreen: false // <-- new setting
+    };
     
+    // Load settings from localStorage or use defaults
+    const savedSettings = JSON.parse(localStorage.getItem('playerSettings')) || {};
+    const settings = { ...defaultSettings, ...savedSettings };
+    
+    // --- Create settings button ---
+    const settingsBtn = document.createElement('div');
+    settingsBtn.id = "sett";
+    settingsBtn.style.position = 'fixed';
+    settingsBtn.style.top = '10px';
+    settingsBtn.style.left = '10px';
+    settingsBtn.style.width = '30px';
+    settingsBtn.style.height = '30px';
+    settingsBtn.style.borderRadius = '50%';
+    settingsBtn.style.cursor = 'pointer';
+    settingsBtn.style.zIndex = 9999;
+    settingsBtn.title = 'Open Settings';
+    
+    const img = new Image();
+    img.src = 'sett.png';
+    img.onload = () => {
+      settingsBtn.style.backgroundImage = `url(${img.src})`;
+      settingsBtn.style.backgroundSize = 'cover';
+      settingsBtn.style.backgroundPosition = 'center';
+    };
+    img.onerror = () => {
+      settingsBtn.style.backgroundColor = 'black'; // fallback
+    };
+    document.body.appendChild(settingsBtn);
+    
+    // --- Settings panel ---
+    const panel = document.createElement('div');
+    panel.id = "panel";
+    panel.style.position = 'fixed';
+    panel.style.top = '50px';
+    panel.style.left = '10px';
+    panel.style.width = '220px';
+    panel.style.padding = '10px';
+    panel.style.backgroundColor = 'rgba(0,0,0,0.85)';
+    panel.style.color = 'white';
+    panel.style.fontSize = '14px';
+    panel.style.borderRadius = '8px';
+    panel.style.display = 'none';
+    panel.style.zIndex = 9999;
+    panel.style.maxHeight = '90vh';
+    panel.style.overflowY = 'auto';
+    panel.innerHTML = `<h4 style="margin:5px 0;">Settings</h4>`;
+    document.body.appendChild(panel);
+    
+    // --- Helper to create checkbox ---
+    function createCheckbox(name, label, checked) {
+      const wrapper = document.createElement('div');
+      wrapper.style.margin = '5px 0';
+      const input = document.createElement('input');
+      input.type = 'checkbox';
+      input.id = `chk-${name}`;
+      input.checked = checked;
+      const lbl = document.createElement('label');
+      lbl.htmlFor = input.id;
+      lbl.textContent = ' ' + label;
+      wrapper.appendChild(input);
+      wrapper.appendChild(lbl);
+      panel.appendChild(wrapper);
+      return input;
+    }
+    
+    // --- Add checkboxes ---
+    const chkMaxFPS = createCheckbox('maxFPS60', 'Max FPS 60', settings.maxFPS60);
+    const chkShake = createCheckbox('reduceShake', 'Reduce Shake', settings.reduceShake);
+    const chkColor = createCheckbox('reduceColor', 'Reduce Color Party', settings.reduceColor);
+    const chkURL = createCheckbox('showURLOption', 'Show URL Option', settings.showURLOption);
+    const chkInstructions = createCheckbox('showInstructions', 'Show Instructions', settings.showInstructions);
+    const chkFullscreen = createCheckbox('fullscreen', 'Full Screen Mode', settings.fullscreen); // new
+    
+    // --- Reset button ---
+    const resetBtn = document.createElement('button');
+    resetBtn.textContent = 'Reset Settings';
+    resetBtn.style.marginTop = '10px';
+    resetBtn.style.width = '100%';
+    panel.appendChild(resetBtn);
+    
+    // --- Event listeners for checkboxes ---
+    [chkMaxFPS, chkShake, chkColor, chkURL, chkInstructions, chkFullscreen].forEach(chk => {
+      chk.addEventListener('change', () => {
+        settings.maxFPS60 = chkMaxFPS.checked;
+        settings.reduceShake = chkShake.checked;
+        settings.reduceColor = chkColor.checked;
+        settings.showURLOption = chkURL.checked;
+        settings.showInstructions = chkInstructions.checked;
+        settings.fullscreen = chkFullscreen.checked;
+        
+        localStorage.setItem('playerSettings', JSON.stringify(settings));
+        
+        // Apply immediate changes
+        window.targetFPS = settings.maxFPS60 ? 60 : 120;
+        
+        // Full screen toggle
+        if (settings.fullscreen) {
+          if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen().catch(err => {
+              console.warn("Fullscreen failed:", err);
+            });
+          }
+        } else {
+          if (document.fullscreenElement) {
+            document.exitFullscreen();
+          }
+        }
+      });
+    });
+    
+    resetBtn.addEventListener('click', () => {
+      localStorage.removeItem('playerSettings');
+      location.reload();
+    });
+    
+    // --- Toggle panel visibility ---
+    settingsBtn.addEventListener('click', function() {
+      const isOpening = !panel.classList.contains('opening');
+      if (isOpening) {
+        this.classList.remove('closing');
+        this.classList.add('opening');
+        panel.classList.remove('closing');
+        panel.classList.add('opening');
+        panel.style.display = 'block';
+      } else {
+        this.classList.remove('opening');
+        this.classList.add('closing');
+        panel.classList.remove('opening');
+        panel.classList.add('closing');
+      }
+    });
+    
+    // --- Apply initial settings ---
+    [chkMaxFPS, chkShake, chkColor, chkURL, chkInstructions, chkFullscreen].forEach(chk => {
+      chk.dispatchEvent(new Event('change'));
+    });
+    
+    // --- Continuous enforcement ---
+    setInterval(() => {
+      window.canShake = !settings.reduceShake;
+      
+      if (settings.reduceColor) {
+        document.body.style.backgroundColor = 'black';
+      }
+      
+      const urlEl = document.getElementById('urlOption');
+      if (urlEl) urlEl.style.display = settings.showURLOption ? 'block' : 'none';
+      
+      document.querySelectorAll('.instructions').forEach(el => {
+        el.style.display = settings.showInstructions ? 'block' : 'none';
+      });
+    }, 10);
+    
+  } catch (e) {
+    console.error('Settings panel error:', e);
   }
 });
-
-  // --- Apply initial settings ---
-  chkMaxFPS.dispatchEvent(new Event('change'));
-
-  // --- Continuous enforcement every 10ms ---
-  setInterval(() => {
-    // Shake enforcement
-    canShake = !settings.reduceShake;
-
-    // Body background color enforcement
-    setInterval(() => {
-  if (settings.reduceColor) {
-    document.body.style.backgroundColor = 'black';
-  }
-}, 10);
-
-    // URL option enforcement
-    const urlEl = document.getElementById('urlOption');
-    if (urlEl) urlEl.style.display = settings.showURLOption ? 'block' : 'none';
-
-    // Instructions enforcement
-    document.querySelectorAll('.instructions').forEach(el => {
-      el.style.display = settings.showInstructions ? 'block' : 'none';
-    });
-  }, 10);
-
-} catch (e) {
-  console.error('Settings panel error:', e);
-}});
